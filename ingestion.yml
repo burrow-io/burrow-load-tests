@@ -1,0 +1,33 @@
+config:
+  target: "{{ $processEnvironment.CLOUDFRONT_DNS }}"
+  processor: "./processor.js"
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: "Ingestion load test"
+
+scenarios:
+  - name: "Upload Small Document"
+    flow:
+      - post:
+          url: "/api/login"
+          json:
+            userName: "{{ $processEnvironment.MANAGEMENT_ADMIN_USERNAME }}"
+            password: "{{ $processEnvironment.MANAGEMENT_ADMIN_PASSWORD }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: jwt
+          capture:
+            - json: "$.jwt"
+              as: "authToken"
+
+      - post:
+          url: "/api/documents"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          beforeRequest: "upload"
+          expect:
+            - statusCode: 201
+            - contentType: json
+            - hasProperty: id

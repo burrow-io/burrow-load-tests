@@ -1,0 +1,31 @@
+config:
+  target: "{{ $processEnvironment.CLOUDFRONT_DNS }}"
+  phases:
+    - duration: 60
+      arrivalRate: 3
+      name: "Sustained load"
+
+scenarios:
+  - name: "Login and Get Documents"
+    flow:
+      - post:
+          url: "/api/login"
+          json:
+            userName: "{{ $processEnvironment.MANAGEMENT_ADMIN_USERNAME }}"
+            password: "{{ $processEnvironment.MANAGEMENT_ADMIN_PASSWORD }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: jwt
+          capture:
+            - json: "$.jwt"
+              as: "authToken"
+
+      - get:
+          url: "/api/documents?status=all"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: items

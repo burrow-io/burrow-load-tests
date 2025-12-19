@@ -1,0 +1,14 @@
+{
+  "name": "burrow-load-tests",
+  "version": "1.0.0",
+  "description": "Load testing for Burrow APIs using Artillery",
+  "scripts": {
+    "query": "dotenv artillery run query-api.yml",
+    "management": "dotenv artillery run management-api.yml",
+    "ingestion": "dotenv artillery run ingestion.yml"
+  },
+  "dependencies": {
+    "artillery": "^2.0.0",
+    "dotenv-cli": "^7.0.0"
+  }
+}

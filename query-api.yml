@@ -1,0 +1,19 @@
+config:
+  target: "{{ $processEnvironment.CLOUDFRONT_DNS }}"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: "Sustained load"
+
+scenarios:
+  - name: "Document Count"
+    flow:
+      - get:
+          url: "/query-service/count"
+          headers:
+            x-api-token: "{{ $processEnvironment.QUERY_API_TOKEN }}"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: total_documents
+            - hasProperty: status
